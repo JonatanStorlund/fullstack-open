@@ -3,7 +3,8 @@ import ReactDOM from 'react-dom';
 import Course from './components/Course'
 
 const App = () => {
-  const course = {
+  const courses = [
+  {
     name: 'Half Stack application development',
     parts: [
       {
@@ -17,11 +18,37 @@ const App = () => {
       {
         name: 'State of a component',
         exercises: 14
+      },
+      {
+        name: 'Redux',
+        exercises: 11,
+        id: 4
+      }
+    ]
+  },
+  {
+    name: 'Node.js',
+    id: 2,
+    parts: [
+      {
+        name: 'Routing',
+        exercises: 3,
+        id: 1
+      },
+      {
+        name: 'Middlewares',
+        exercises: 7,
+        id: 2
       }
     ]
   }
+]
 
-  return (<Course course={course}></Course>)
+return (
+  <>
+    {courses.map(course => <Course key={course.name} course={course}></Course>)}
+  </>
+  )
 }
 
 ReactDOM.render(<App />, document.getElementById('root'))
