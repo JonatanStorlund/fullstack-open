@@ -9,7 +9,6 @@ const Filter = (props) => {
   )
 }
 
-
 const AddPersonForm = (props) => {
   return (
     <>
@@ -40,8 +39,6 @@ const App = () => {
     { name: 'Jonatan Storlund', number: '040-7654321' },
     { name: 'Benjamin Thylin', number: '050-1234567' }
   ])
-  const [filteredPersons, setFilteredPersons] = useState(persons)
-  // const [activeList, setActiveList] = useState()
   const [filterValue, setFilterValue] = useState('')
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
@@ -74,15 +71,19 @@ const App = () => {
 
   const handleFilter = (event) => {
     setFilterValue(event.target.value.toLowerCase())
-    let filterResult = persons.filter(person => person.name.toLowerCase().includes(filterValue))
-    setFilteredPersons(filterResult)
   }
 
   return (
     <div>
       <AddPersonForm title="Add Person" handleSubmit={handleSubmit} handleNameOnChange={handleNameOnChange} handleNumberOnChange={handleNumberOnChange} />
       <Filter handleFilter={handleFilter} title="Filter by Name" />
-      {filteredPersons.map(person => <Person key={person.name} name={person.name} number={person.number} />)}
+      {persons
+        .filter((person) => {
+          if (filterValue === '') return person
+
+          return person.name.toLowerCase().includes(filterValue)
+        })
+        .map(person => <Person key={person.name} name={person.name} number={person.number} />)}
     </div>
   )
 }
