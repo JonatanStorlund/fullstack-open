@@ -73,16 +73,18 @@ const App = () => {
     setFilterValue(event.target.value.toLowerCase())
   }
 
+  const filterByName = (person) => {
+    if (filterValue === '') return person
+
+    return person.name.toLowerCase().includes(filterValue)
+  }
+
   return (
     <div>
       <AddPersonForm title="Add Person" handleSubmit={handleSubmit} handleNameOnChange={handleNameOnChange} handleNumberOnChange={handleNumberOnChange} />
       <Filter handleFilter={handleFilter} title="Filter by Name" />
       {persons
-        .filter((person) => {
-          if (filterValue === '') return person
-
-          return person.name.toLowerCase().includes(filterValue)
-        })
+        .filter(filterByName)
         .map(person => <Person key={person.name} name={person.name} number={person.number} />)}
     </div>
   )
