@@ -1,6 +1,25 @@
 import { useState, useEffect } from 'react'
 import services from './services'
 
+const Notification = (props) => {
+  const notification = {
+    padding: '0 20px',
+    borderRadius: 4,
+    width: 'fit-content',
+    color: 'white',
+    display: props.show ? 'block' : 'none'
+  }
+
+  const status = props.status === 'success' ? {backgroundColor: 'green'} : {backgroundColor: 'red'}
+
+  return (
+    <>
+      <div style={{...status, ...notification}} className={props.status}>
+        <h2>{props.message}</h2>
+      </div>
+    </>
+  )
+}
 
 const Filter = (props) => {
   return (
@@ -44,6 +63,11 @@ const App = () => {
   const [filterValue, setFilterValue] = useState('')
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
+  const [notification, setNotification] = useState({
+    status: '',
+    message: ''
+  })
+  const [showOrNot, setShowOrNot] = useState(false)
 
   const handleSubmit = (event) => {
     event.preventDefault()
@@ -57,14 +81,49 @@ const App = () => {
     let changedPerson = { ...exsistingPerson, number: newNumber }
 
     if (exsistingPerson && confirmed) {
-      updatePerson(exsistingPerson.id, changedPerson)
+      services
+      .update(exsistingPerson.id, changedPerson)
+      .then(changedPerson => {
+        setPersons(persons.map(person => person.id !== exsistingPerson.id ? person : changedPerson))
+        setNotification({
+          status: 'success',
+          message: `you successfully update ${newName}s number`
+        })
+      })
+      .catch(error => {
+        console.log(error)
+        setPersons(persons.filter(person => person.id !== exsistingPerson.id))
+        setNotification({
+          status: 'error',
+          message: 'User does not exsist'
+        })
+      })
     }
     
     if (!exsistingPerson) {
       services.create(newPersonObject).then((person) => {
         setPersons(persons.concat(person))
+        setNotification({
+          status: 'success',
+          message: `you successfully added ${newName}`
+        })
+      })
+      .catch(error => {
+        setNotification({
+          status: 'error',
+          message: 'User does not exsist'
+        })
       })
     }
+
+    showNotification()
+  }
+
+  const showNotification = () => {
+    setShowOrNot(true)
+    setTimeout(() => {
+      setShowOrNot(false)
+    }, 3000); 
   }
 
   const handleNameOnChange = (event) => {
@@ -90,13 +149,6 @@ const App = () => {
     }
   }
 
-  const updatePerson = (id, newPerson) => {
-    services
-      .update(id, newPerson).then(returnedPerson => {
-      setPersons(persons.map(person => person.id !== id ? person : returnedPerson))
-    })
-  }
-
   const filterByName = (person) => {
     if (filterValue === '') return person
 
@@ -114,6 +166,7 @@ const App = () => {
 
   return (
     <div>
+      <Notification show={showOrNot} status={notification.status} message={notification.message} />
       <AddPersonForm title="Add Person" handleSubmit={handleSubmit} handleNameOnChange={handleNameOnChange} handleNumberOnChange={handleNumberOnChange} />
       <Filter handleFilter={handleFilter} title="Filter by Name" />
       {persons
